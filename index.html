@@ -242,7 +242,7 @@
                     let imgNum = isSadPhase 
                         ? Math.floor(Math.random() * 11) + 1   // 随机抽取 image(1) 到 image(11)
                         : Math.floor(Math.random() * 63) + 12; // 随机抽取 image(12) 到 image(74)
-                    fullCorpus.push({ image: `image(${imgNum}).png` });
+                    fullCorpus.push({ image: `image (${imgNum}).png` });
                 } else {
                     let emojiPool = isSadPhase ? sadEmojis : happyEmojis;
                     let emojiText = emojiPool[Math.floor(Math.random() * emojiPool.length)];
@@ -360,3 +360,4 @@
     </script>
 </body>
 </html>
+
