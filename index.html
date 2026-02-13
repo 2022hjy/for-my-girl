@@ -8,7 +8,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            /* 【修改点1】更甜美的粉色恋爱系渐变背景 */
             background: linear-gradient(135deg, #fad0c4 0%, #ff9a9e 100%);
             background-attachment: fixed;
             font-family: 'Helvetica Neue', Arial, 'PingFang SC', sans-serif;
@@ -22,194 +21,262 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        .header {
-            text-align: center;
-            margin: 40px 0 20px 0;
-            color: #fff;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            animation: fadeInDown 1.5s ease;
-            z-index: 10;
+        /* ================= 1. 动态信封开场特效 ================= */
+        #envelope-wrapper {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(135deg, #fad0c4 0%, #ff9a9e 100%);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease, transform 0.8s ease;
         }
 
-        .header h1 {
-            font-size: 26px;
-            font-weight: bold;
-            margin-bottom: 10px;
+        .envelope {
+            position: relative;
+            width: 280px;
+            height: 180px;
+            background: #d65a71; /* 信封内衬颜色(较深) */
+            box-shadow: 0 20px 50px rgba(216, 27, 96, 0.5);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .envelope:hover { transform: translateY(-5px); }
+
+        /* 信纸 */
+        .env-paper {
+            position: absolute;
+            top: 10px; left: 10px; right: 10px; bottom: 10px;
+            background: #fff;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #d81b60;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1;
+        }
+
+        .env-paper h2 { font-size: 18px; margin-bottom: 5px; letter-spacing: 1px; }
+        .env-paper p { font-size: 12px; color: #ff758c; }
+
+        /* 信封下半部分 */
+        .env-front {
+            position: absolute;
+            bottom: 0; left: 0;
+            border-left: 140px solid transparent;
+            border-right: 140px solid transparent;
+            border-bottom: 110px solid #ff9fb0; /* 正面最外层 */
+            z-index: 3;
+        }
+
+        /* 信封左右折叠翼 */
+        .env-left-right {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 2;
+        }
+        .env-left-right::before {
+            content: ''; position: absolute; top: 0; left: 0;
+            border-top: 90px solid transparent; border-bottom: 90px solid transparent; border-left: 140px solid #ff8a9d;
+        }
+        .env-left-right::after {
+            content: ''; position: absolute; top: 0; right: 0;
+            border-top: 90px solid transparent; border-bottom: 90px solid transparent; border-right: 140px solid #ff8a9d;
+        }
+
+        /* 信封翻盖 */
+        .env-flap {
+            position: absolute;
+            top: 0; left: 0;
+            border-left: 140px solid transparent;
+            border-right: 140px solid transparent;
+            border-top: 105px solid #ff758c;
+            transform-origin: top;
+            transition: transform 0.6s ease, z-index 0.2s;
+            z-index: 4;
+        }
+
+        /* 爱心火漆印章 */
+        .env-seal {
+            position: absolute;
+            top: 105px; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 45px; height: 45px;
+            background: #d81b60;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            color: white; font-size: 22px;
+            z-index: 5;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        /* 点击提示文字 */
+        .env-hint {
+            margin-top: 40px;
+            color: white;
+            font-size: 15px;
             letter-spacing: 2px;
+            animation: pulse 1.5s infinite;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        .header p {
-            font-size: 14px;
-            opacity: 0.95;
-            line-height: 1.6;
+        /* --- 开启动画状态 --- */
+        .envelope.open .env-flap { transform: rotateX(180deg); z-index: 0; }
+        .envelope.open .env-seal { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+        .envelope.open .env-paper { transform: translateY(-70px); z-index: 3; }
+
+        /* ================= 2. 主页面内容 (初始隐藏) ================= */
+        #main-content {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0; /* 初始透明 */
+            transition: opacity 1.2s ease;
         }
+
+        .header { text-align: center; margin: 40px 0 20px 0; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 10; }
+        .header h1 { font-size: 26px; font-weight: bold; margin-bottom: 10px; letter-spacing: 2px; }
+        .header p { font-size: 14px; opacity: 0.95; line-height: 1.6; }
 
         .stats {
-            background: rgba(255, 255, 255, 0.4); /* 更通透一点 */
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 8px 24px;
-            border-radius: 30px;
-            color: #fff;
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(255, 107, 129, 0.2); /* 粉色阴影 */
-            position: sticky;
-            top: 15px;
-            z-index: 100;
-            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            padding: 8px 24px; border-radius: 30px;
+            color: #fff; font-size: 14px; font-weight: bold;
+            margin-bottom: 25px; box-shadow: 0 4px 15px rgba(255, 107, 129, 0.2);
+            position: sticky; top: 15px; z-index: 100;
         }
 
         .message-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            width: 100%;
-            max-width: 600px;
-            padding-bottom: 40px;
-            z-index: 10;
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;
+            width: 100%; max-width: 600px; padding-bottom: 40px; z-index: 10;
         }
 
-        /* 气泡样式 */
         .msg-card {
             background: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.9); /* 边框更明显一点 */
-            padding: 18px;
-            border-radius: 22px;
-            color: #5a3a4a; /* 字体颜色偏暖一点 */
-            font-size: 15px;
-            line-height: 1.6;
-            box-shadow: 0 8px 32px 0 rgba(255, 154, 158, 0.15); /* 粉色系阴影 */
-            transform: translateY(30px) scale(0.95);
-            opacity: 0;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            padding: 18px; border-radius: 22px;
+            color: #5a3a4a; font-size: 15px; line-height: 1.6;
+            box-shadow: 0 8px 32px 0 rgba(255, 154, 158, 0.15);
+            transform: translateY(30px) scale(0.95); opacity: 0;
             transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            width: 100%;
-            word-wrap: break-word;
-            position: relative;
-            overflow: hidden;
+            width: 100%; word-wrap: break-word; position: relative; overflow: hidden;
         }
 
-        /* 【修改点2】图片消息的专属样式 */
-        .msg-card img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 10px auto 0; /* 图片居中 */
-            border-radius: 16px; /* 图片圆角 */
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* 图片立体感 */
-        }
-        
-        .msg-card.img-mode {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.75);
-        }
-        
-        .img-caption {
-            font-weight: bold;
-            color: #d81b60;
-            margin-bottom: 8px;
-            display: block;
-        }
+        .msg-card img { max-width: 100%; height: auto; display: block; margin: 10px auto 0; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .msg-card.img-mode { text-align: center; background: rgba(255, 255, 255, 0.75); }
+        .img-caption { font-weight: bold; color: #d81b60; margin-bottom: 8px; display: block; }
 
-        /* 不同的消息风格 */
         .msg-card.style-emoji { font-size: 28px; text-align: center; background: rgba(255,255,255,0.5); }
         .msg-card.style-sweet { color: #d81b60; font-weight: bold; }
         .msg-card.style-sorry { border-left: 5px solid #ff758c; background: rgba(255, 240, 245, 0.7); }
-
-        .msg-card.show {
-            transform: translateY(0) scale(1);
-            opacity: 1;
-        }
+        .msg-card.show { transform: translateY(0) scale(1); opacity: 1; }
 
         .msg-card.finale {
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-            color: #d81b60;
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            padding: 40px 20px;
-            border-radius: 24px;
-            box-shadow: 0 15px 40px rgba(255, 117, 140, 0.4);
-            margin-top: 30px;
-            border: 3px solid #fff;
-            animation: pulse 2s infinite;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #d81b60;
+            font-size: 18px; font-weight: bold; text-align: center; padding: 40px 20px;
+            border-radius: 24px; box-shadow: 0 15px 40px rgba(255, 117, 140, 0.4);
+            margin-top: 30px; border: 3px solid #fff; animation: pulse 2s infinite;
         }
 
-        .msg-num {
-            opacity: 0.6;
-            font-size: 12px;
-            display: block;
-            margin-bottom: 6px;
-            font-family: monospace;
-            color: #ff758c; /* 序号也变成粉色 */
-        }
-
+        .msg-num { opacity: 0.6; font-size: 12px; display: block; margin-bottom: 6px; font-family: monospace; color: #ff758c; }
         .finale .msg-num { color: rgba(216, 27, 96, 0.6); }
 
-        .loading-trigger {
-            height: 60px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #fff;
-            font-size: 14px;
-            opacity: 0.9;
-            padding-bottom: 20px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
+        .loading-trigger { height: 60px; width: 100%; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 14px; opacity: 0.9; padding-bottom: 20px; }
 
-        /* 漂浮粒子特效（心心/星星） */
+        /* 漂浮粒子 */
         .particle {
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
-            animation: floatUp ease-out forwards;
-            filter: drop-shadow(0 2px 4px rgba(255, 105, 180, 0.3));
+            position: fixed; pointer-events: none; z-index: 9999;
+            animation: floatUp ease-out forwards; filter: drop-shadow(0 2px 4px rgba(255, 105, 180, 0.3));
         }
 
-        @keyframes floatUp {
-            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-150px) scale(1.5) rotate(360deg); opacity: 0; }
-        }
-
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
+        @keyframes floatUp { 0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; } 100% { transform: translateY(-150px) scale(1.5) rotate(360deg); opacity: 0; } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>致我最爱的宝宝</h1>
-        <p>旅行的遗憾都变成粉色的气泡补偿你<br>这是属于你的 1000 份偏爱</p>
+    <div id="envelope-wrapper">
+        <div class="envelope" id="envelope">
+            <div class="env-paper">
+                <h2>致我最爱的宝宝</h2>
+                <p>内含 1000 份歉意与心动</p>
+            </div>
+            <div class="env-left-right"></div>
+            <div class="env-front"></div>
+            <div class="env-flap"></div>
+            <div class="env-seal">❤</div>
+        </div>
+        <div class="env-hint">点击拆开信封</div>
     </div>
 
-    <div class="stats" id="counter">💗 向上滑动，查收心意... 0/1000</div>
-
-    <div class="message-container" id="container">
+    <div id="main-content" style="display: none;">
+        <div class="header">
+            <h1>致我最爱的宝宝</h1>
+            <p>旅行的遗憾都变成粉色的气泡补偿你<br>这是属于你的 1000 份偏爱</p>
         </div>
 
-    <div class="loading-trigger" id="loading">🌸 继续上滑，还有好多话想对你说...</div>
+        <div class="stats" id="counter">💗 向上滑动，查收心意... 0/1000</div>
+
+        <div class="message-container" id="container">
+            </div>
+
+        <div class="loading-trigger" id="loading">🌸 继续上滑，还有好多话想对你说...</div>
+    </div>
 
     <script>
-        // 【修改点3】升级版语料库：支持文本消息和图片消息混合
-        // text: 文字内容
-        // type: 样式类型 (可选: style-sorry, style-sweet, style-emoji)
-        // image: 图片文件名 (可选，必须放在同一目录下)
+        // ================= 信封开场逻辑 =================
+        const envelopeWrapper = document.getElementById('envelope-wrapper');
+        const envelope = document.getElementById('envelope');
+        const mainContent = document.getElementById('main-content');
+        
+        let isOpened = false;
+
+        envelope.addEventListener('click', () => {
+            if (isOpened) return;
+            isOpened = true;
+
+            // 1. 信封翻盖打开，信纸升起
+            envelope.classList.add('open');
+            
+            // 2. 等待她看清信纸上的字 (1.5秒)，然后信封整体淡出
+            setTimeout(() => {
+                envelopeWrapper.style.opacity = '0';
+                envelopeWrapper.style.transform = 'scale(1.1)'; // 微微放大淡出
+                
+                // 3. 信封完全消失后，显示主界面并触发瀑布流和粒子特效
+                setTimeout(() => {
+                    envelopeWrapper.style.display = 'none';
+                    mainContent.style.display = 'flex';
+                    
+                    // 强制重绘，触发淡入
+                    mainContent.offsetHeight; 
+                    mainContent.style.opacity = '1';
+                    
+                    // 开启浪漫之旅！
+                    setTimeout(() => {
+                        renderBatch();
+                        setTimeout(renderBatch, 800);
+                        startParticles(); // 启动爱心特效
+                    }, 300);
+
+                }, 800); // 对应 CSS 中 transition 的 0.8s
+            }, 1500);
+        });
+
+
+        // ================= 消息语料与渲染逻辑 =================
         const corpus = [
-            // --- 纯文本消息示例 ---
             { text: "宝宝对不起，那天路上我太笨了😔", type: "style-sorry" },
             { text: "我不该让你一个人消化那些烦心事的，以后绝对不会了！", type: "style-sorry" },
             { text: "给你变个魔术，呼——坏心情全部飞走啦！✨", type: "style-sweet" },
@@ -224,7 +291,7 @@
             { text: "🐶 汪汪汪，别生小狗的气了好不好嘛", type: "" },
             { text: "想你啦，想见你，想紧紧抱住你，不撒手的那种。", type: "style-sweet" },
             
-            // --- 【重点】图片消息示例 (请确保你的文件名正确) ---
+            // 图片消息
             { text: "别生气啦，凑近点给你看个宝贝~", image: "image_1.png" },
             { text: "委屈巴巴，知道错啦...", image: "image_2.png", type: "style-sorry" },
             { text: "我正在面壁思过中，勿扰 (除非是你找我)", image: "image_3.png" },
@@ -232,13 +299,11 @@
             { text: "满脑子都是你，给你我的小心心", image: "image_5.png" },
             { text: "这是一张有声音的图片：我爱你！", image: "image_6.png", type: "style-sweet" },
             
-            // --- 更多旅行相关文本 ---
             { text: "那天行李太重，我应该第一时间抢过来帮你提的，怪我反应慢！", type: "style-sorry" },
             { text: "找错路的时候我不该不说话的，应该马上牵起你的手带你走。", type: "style-sorry" },
             { text: "保证以后出去玩，我一定把攻略做到完美，做你的VIP专属金牌导游！", type: "style-sweet" },
             { text: "❤️🧡💛💚💙💜", type: "style-emoji" },
-            { text: "不管发生什么，你在我心里永远是第一顺位。", type: "style-sweet" },
-            { text: "好想揉揉你的脑袋啊~", type: "" }
+            { text: "不管发生什么，你在我心里永远是第一顺位。", type: "style-sweet" }
         ];
 
         const container = document.getElementById('container');
@@ -247,12 +312,10 @@
         
         let currentCount = 0;
         const totalMessages = 1000;
-        const batchSize = 15; // 每次上滑加载的条数
-        let isGenerating = false; // 防止重复加载的锁
+        const batchSize = 15; 
+        let isGenerating = false; 
 
-        function getRandomMsg() {
-            return corpus[Math.floor(Math.random() * corpus.length)];
-        }
+        function getRandomMsg() { return corpus[Math.floor(Math.random() * corpus.length)]; }
 
         function renderBatch() {
             if (isGenerating || currentCount >= totalMessages) return;
@@ -267,7 +330,6 @@
                 card.className = 'msg-card';
                 
                 if (i === totalMessages - 1) {
-                    // 第 1000 条终极告白
                     card.classList.add('finale');
                     card.innerHTML = `<span class="msg-num">Message No.1000</span>
                         💌 终于来到第 1000 条 💌<br><br>
@@ -279,25 +341,17 @@
                     const msgObj = getRandomMsg();
                     let contentHtml = `<span class="msg-num">No.${i + 1}</span>`;
 
-                    // 【修改点4】判断是图片消息还是文本消息
                     if (msgObj.image) {
                         card.classList.add('img-mode');
                         if (msgObj.type) card.classList.add(msgObj.type);
-                        // 如果有文字配图，加个标题样式
-                        if(msgObj.text) {
-                            contentHtml += `<span class="img-caption">${msgObj.text}</span>`;
-                        }
-                        // 插入图片，注意这里直接使用文件名，所以html要和图片在同一目录下
+                        if(msgObj.text) contentHtml += `<span class="img-caption">${msgObj.text}</span>`;
                         contentHtml += `<img src="${msgObj.image}" alt="表情包">`;
                     } else {
-                        // 纯文本消息
                         if(msgObj.type) card.classList.add(msgObj.type);
                         contentHtml += msgObj.text;
                     }
-
                     card.innerHTML = contentHtml;
                 }
-
                 fragment.appendChild(card);
                 newCards.push(card);
             }
@@ -305,7 +359,6 @@
             container.appendChild(fragment);
             currentCount = end;
 
-            // 依次触发入场动画
             newCards.forEach((card, index) => {
                 setTimeout(() => {
                     card.classList.add('show');
@@ -321,7 +374,6 @@
             }, newCards.length * 100 + 200);
         }
 
-        // 监听滚动事件，实现触底加载
         window.addEventListener('scroll', () => {
             const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
             const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
@@ -332,52 +384,43 @@
             }
         });
 
-        // ================= 特效部分（粒子换成了更符合主题的） =================
-        const emojis = ['❤️', '🌸', '🎀', '💕', '✨', '😘'];
-
+        // ================= 粒子特效逻辑 =================
+        const emojis = ['❤️', '💖', '🌸', '🎀', '💕', '✨'];
         function createParticle(x, y) {
             const particle = document.createElement('div');
             particle.className = 'particle';
             particle.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-            
             const size = Math.random() * 18 + 12; 
             const duration = Math.random() * 2 + 1.5; 
-            
             particle.style.left = `${x}px`;
             particle.style.top = `${y}px`;
             particle.style.fontSize = `${size}px`;
             particle.style.animationDuration = `${duration}s`;
-
             document.body.appendChild(particle);
-
-            setTimeout(() => {
-                particle.remove();
-            }, duration * 1000);
+            setTimeout(() => particle.remove(), duration * 1000);
         }
 
-        // 1. 全局背景随机飘落
-        setInterval(() => {
-            createParticle(Math.random() * window.innerWidth, window.innerHeight);
-        }, 800);
+        // 把粒子特效封装起来，等信封打开后再执行
+        function startParticles() {
+            // 背景随机飘落
+            setInterval(() => {
+                createParticle(Math.random() * window.innerWidth, window.innerHeight);
+            }, 800);
 
-        // 2. 点击屏幕炸出爱心
-        window.addEventListener('pointerdown', (e) => {
-            for(let i=0; i<4; i++) {
-                setTimeout(() => {
-                    const offsetX = (Math.random() - 0.5) * 50;
-                    const offsetY = (Math.random() - 0.5) * 50;
-                    createParticle(e.clientX + offsetX, e.clientY + offsetY);
-                }, i * 80);
-            }
-        });
-
-        // 首次加载
-        setTimeout(() => {
-            renderBatch();
-            setTimeout(renderBatch, 800);
-        }, 300);
-
+            // 点击屏幕炸出爱心
+            window.addEventListener('pointerdown', (e) => {
+                // 如果点的是信封相关元素，不触发爱心（防止开场动画时乱出心）
+                if (e.target.closest('#envelope-wrapper')) return;
+                
+                for(let i=0; i<4; i++) {
+                    setTimeout(() => {
+                        const offsetX = (Math.random() - 0.5) * 50;
+                        const offsetY = (Math.random() - 0.5) * 50;
+                        createParticle(e.clientX + offsetX, e.clientY + offsetY);
+                    }, i * 80);
+                }
+            });
+        }
     </script>
 </body>
 </html>
-
